@@ -1,4 +1,6 @@
-# Engenharia de Software II - Ferramenta CodeThermometer – Mineração de Repositórios de Software
+# Engenharia de Software II - Ferramenta CodeThermometer
+
+Ferramenta de análise evolutiva de código que utiliza mineração de repositórios para identificar a progressão de complexidade, acoplamento e code smells ao longo do tempo.  
 
 ## Membros do Grupo
 
@@ -6,43 +8,167 @@
 - Isabela Saenz Cardoso
 - Lucas Almeida Santos de Souza
 - Rodrigo Sales Nascimento
+---
+
+## 1. Visão Geral
+
+O CodeThermometer analisa o histórico de commits de um repositório Git hospedado (por exemplo, GitHub) e calcula métricas de qualidade de código para cada versão.  
+Os resultados são apresentados em uma linha do tempo no terminal, exibindo a evolução da complexidade e a ocorrência de possíveis problemas ao longo do tempo.
 
 ---
 
-## Explicação do Sistema
+## 2. Tecnologias utilizadas
 
-O **CodeThermometer** será uma ferramenta de linha de comando para identificar hotspots de manutenção em projetos de software.  
-
-A ideia central é analisar o **histórico de commits de um repositório Git** para localizar arquivos que passam por muitas modificações ao longo do tempo, o que pode indicar potenciais problemas de manutenção, dívida técnica ou risco de falhas.  
-
-### Funcionalidades esperadas
-- Extrair número de commits por arquivo em um período definido.  
-- Calcular o Code Churn (linhas adicionadas/removidas).  
-- Medir a complexidade ciclomática do código.  
-- Identificar autores mais frequentes em cada hotspot (avaliar concentração de conhecimento / bus factor).  
-- Gerar relatórios e gráficos para auxiliar na tomada de decisão.
+- **Python 3.8+**
+- **PyDriller** – extração e análise de commits
+- **GitPython** – dependência interna do PyDriller
+- **Lizard** – cálculo de métricas de código
+- **Click** – interface de linha de comando (CLI)
+- **Rich** – visualização formatada no terminal
 
 ---
 
-## Tecnologias Utilizadas
+## 3. Estrutura do projeto
 
-### Origem dos Dados
-- **Git**: análise do histórico de commits.
-  - [PyDriller](https://github.com/ishepard/pydriller): framework para mineração de repositórios Git.  
-  - Alternativa: [GitPython](https://github.com/gitpython-developers/GitPython).
+```
+code_thermometer/
+│
+├── main.py
+├── analyzer/
+│   ├── repo_miner.py
+│   ├── metrics_extractor.py
+│   └── smell_detector.py
+└── visualizer/
+    └── cli_view.py
+```
 
-### Artefatos Analisados
-- Commits (frequência, autores, churn de linhas).  
-- Arquivos de código-fonte (complexidade).  
-- Metadados de autoria (bus factor).
+---
 
-### Métricas de Código
-- [lizard](https://github.com/terryyin/lizard): cálculo da complexidade ciclomática.  
+## 4. Instalação
 
-### CLI
-- [typer](https://github.com/tiangolo/typer): criação de interface de linha de comando intuitiva.  
-- Alternativas: `argparse` (biblioteca padrão do Python).
+1. Clone o repositório do CodeThermometer
 
-### Visualizações e Relatórios
-- [pandas](https://pandas.pydata.org/): manipulação de dados e exportação para CSV/Excel.  
-- [matplotlib](https://matplotlib.org/) e [seaborn](https://seaborn.pydata.org/): geração de gráficos
+2. Crie e ative um ambiente virtual (opcional, mas recomendado):
+
+**Windows:**
+```bash
+python -m venv .venv
+.venv\Scripts\activate
+```
+
+**Linux/Mac:**
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+3. Instale as dependências:
+
+```bash
+pip install -r requirements.txt
+```
+
+4. Verifique se o Git está instalado e configurado:
+
+```bash
+git --version
+```
+
+Caso esse comando retorne um erro, instale o Git:  
+https://git-scm.com/download/win
+
+---
+
+## 5. Execução
+
+Para executar a análise em um repositório público:
+
+```bash
+python main.py analyze https://github.com/pallets/flask.git --since 2025-01-01
+```
+
+**Parâmetros opcionais:**
+
+- `--since`: data inicial no formato YYYY-MM-DD
+- `--until`: data final no formato YYYY-MM-DD
+
+**Exemplo:**
+
+```bash
+python main.py analyze https://github.com/psf/requests.git --since 2025-01-01 --until 2025-10-31
+```
+
+---
+
+## 6. Saída esperada
+
+O resultado será exibido em formato de tabela no terminal:
+
+```
+CodeThermometer - Timeline de Evolução
+
+┏━━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━┓
+┃ Data       ┃ Commit    ┃ Autor      ┃ Complexidade┃ Smells  ┃
+┡━━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━━┩
+│ 2023-02-10 │ 3f21a7e   │ Armin Ron… │ 123         │ 4       │
+│ 2023-05-03 │ 7ac8b99   │ David Lor… │ 140         │ 7       │
+│ 2023-10-11 │ b5120cc   │ Jorge San… │ 111         │ 3       │
+└────────────┴───────────┴────────────┴─────────────┴─────────┘
+
+Análise concluída!
+```
+
+---
+
+## 7. Troubleshooting
+
+### Erro: "Bad git executable" ou "Failed to initialize GitPython"
+
+O PyDriller depende do GitPython, que precisa acessar o executável do Git.  
+Se o Git não for encontrado, execute os passos abaixo:
+
+1. Verifique se o Git está instalado:
+
+```bash
+git --version
+```
+
+2. Caso o Git esteja instalado mas o erro persista, adicione-o ao PATH:
+
+```bash
+setx PATH "%PATH%;C:\Program Files\Git\cmd"
+```
+
+3. Ou defina explicitamente para o Python:
+
+```bash
+setx GIT_PYTHON_GIT_EXECUTABLE "C:\Program Files\Git\cmd\git.exe"
+```
+
+4. Feche e reabra o VS Code (ou terminal) e tente novamente:
+
+```bash
+python main.py analyze <url-do-repositorio>
+```
+
+### Erro: "Nenhum commit encontrado"
+
+- Verifique se a URL é de um repositório Git válido.
+- Confirme que o repositório é público (PyDriller não acessa repositórios privados sem token).
+- Use o parâmetro `--since` apenas se o repositório possuir commits após essa data.
+
+### Erro: "Permission denied" ou "SSL error"
+
+- Certifique-se de estar conectado à internet.
+- Se estiver em rede corporativa, configure o proxy do Git:
+
+```bash
+git config --global http.proxy http://proxy:porta
+```
+
+---
+
+## 8. Próximos passos
+
+- Adicionar detecção de acoplamento entre módulos.
+- Exportar resultados em CSV ou JSON.
