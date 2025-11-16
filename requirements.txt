@@ -1,0 +1,7 @@
+pydriller>=0.10.0
+lizard>=1.23.0
+click>=8.0
+rich>=12.0
+pytest>=7.0
+pytest-mock>=3.10
+pytest-html>=3.2.0
