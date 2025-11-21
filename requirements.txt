@@ -1,7 +1,8 @@
-pydriller
-lizard
 click
 rich
+pydriller
+lizard
 pytest
 pytest-mock
 pytest-html
+pytest-cov

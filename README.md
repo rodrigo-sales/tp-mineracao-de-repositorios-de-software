@@ -28,151 +28,80 @@ Os resultados são apresentados em uma linha do tempo no terminal, exibindo a ev
 
 ---
 
-## 3. Estrutura do projeto
-
-```
-code_thermometer/
-│
-├── main.py
-├── analyzer/
-│   ├── repo_miner.py
-│   ├── metrics_extractor.py
-│   └── smell_detector.py
-└── visualizer/
-    └── cli_view.py
-```
-
----
-
-## 4. Instalação
-
-1. Clone o repositório do CodeThermometer
-
-2. Crie e ative um ambiente virtual (opcional, mas recomendado):
-
-**Windows:**
-```bash
-python -m venv .venv
-.venv\Scripts\activate
-```
-
-**Linux/Mac:**
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-```
-
-3. Instale as dependências:
+## Instalação
 
 ```bash
 pip install -r requirements.txt
 ```
 
-4. Verifique se o Git está instalado e configurado:
+## Uso
+
+Analisar um repositório:
 
 ```bash
-git --version
+python src/main.py analyze https://github.com/usuario/repositorio
 ```
 
-Caso esse comando retorne um erro, instale o Git:  
-https://git-scm.com/download/win
-
----
-
-## 5. Execução
-
-Para executar a análise em um repositório público:
+Com filtro de datas:
 
 ```bash
-python main.py analyze https://github.com/pallets/flask.git --since 2025-01-01
+python src/main.py analyze https://github.com/usuario/repositorio --since 2025-01-01 --until 2025-12-31
 ```
 
-**Parâmetros opcionais:**
-
-- `--since`: data inicial no formato YYYY-MM-DD
-- `--until`: data final no formato YYYY-MM-DD
-
-**Exemplo:**
+Modo verbose (estatísticas por autor):
 
 ```bash
-python main.py analyze https://github.com/psf/requests.git --since 2025-01-01 --until 2025-10-31
+python src/main.py analyze https://github.com/usuario/repositorio -v
 ```
 
----
-
-## 6. Saída esperada
-
-O resultado será exibido em formato de tabela no terminal:
-
-```
-CodeThermometer - Timeline de Evolução
-
-┏━━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━┓
-┃ Data       ┃ Commit    ┃ Autor      ┃ Complexidade┃ Smells  ┃
-┡━━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━━┩
-│ 2023-02-10 │ 3f21a7e   │ Armin Ron… │ 123         │ 4       │
-│ 2023-05-03 │ 7ac8b99   │ David Lor… │ 140         │ 7       │
-│ 2023-10-11 │ b5120cc   │ Jorge San… │ 111         │ 3       │
-└────────────┴───────────┴────────────┴─────────────┴─────────┘
-
-Análise concluída!
-```
-
----
-
-## 7. Troubleshooting
-
-### Erro: "Bad git executable" ou "Failed to initialize GitPython"
-
-O PyDriller depende do GitPython, que precisa acessar o executável do Git.  
-Se o Git não for encontrado, execute os passos abaixo:
-
-1. Verifique se o Git está instalado:
+Gerar relatório agregado:
 
 ```bash
-git --version
+python src/main.py report https://github.com/usuario/repositorio
 ```
 
-2. Caso o Git esteja instalado mas o erro persista, adicione-o ao PATH:
+## Métricas Coletadas
+
+- Complexidade Cíclomática (CC)
+- Acoplamento (0-10)
+- Índice de Manutenibilidade (0-100)
+- Linhas de Código (LOC)
+- Code Smells (8 tipos detectados)
+- Contagem de Funções
+- Comprimento Médio de Função
+
+## Detecção de Code Smells
+
+Detecta 8 tipos de problemas:
+
+1. Funções muito complexas (CC > 15)
+2. Funções muito longas (> 100 linhas)
+3. Código duplicado
+4. Variáveis não utilizadas
+5. Imports não utilizados
+6. Aninhamento profundo (> 5 níveis)
+7. Muitos parâmetros (> 5)
+8. Nomes genéricos
+
+## Visualização
+
+A ferramenta exibe:
+
+- Tabela de métricas por commit
+- Painel de estatísticas agregadas
+- Indicadores de tendência
+- Gráfico ASCII de evolução
+
+## Testes
+
+Executar testes:
 
 ```bash
-setx PATH "%PATH%;C:\Program Files\Git\cmd"
+pytest tests/ -v
 ```
 
-3. Ou defina explicitamente para o Python:
+Com cobertura:
 
 ```bash
-setx GIT_PYTHON_GIT_EXECUTABLE "C:\Program Files\Git\cmd\git.exe"
+pytest tests/ --cov=analyzer --cov=visualizer
 ```
-
-4. Feche e reabra o VS Code (ou terminal) e tente novamente:
-
-```bash
-python main.py analyze <url-do-repositorio>
-```
-
-### Erro: "Nenhum commit encontrado"
-
-- Verifique se a URL é de um repositório Git válido.
-- Confirme que o repositório é público (PyDriller não acessa repositórios privados sem token).
-- Use o parâmetro `--since` apenas se o repositório possuir commits após essa data.
-
-### Erro: "Permission denied" ou "SSL error"
-
-- Certifique-se de estar conectado à internet.
-- Se estiver em rede corporativa, configure o proxy do Git:
-
-```bash
-git config --global http.proxy http://proxy:porta
-```
-
----
-
-## 8. Próximos passos
-
-- Adicionar detecção de acoplamento entre módulos.
-
-- Exportar resultados em CSV ou JSON.
-
-- Adicionar pelo menos 10 testes de unidade.
-Os testes devem ser executados automaticamente via GitHub Actions.
